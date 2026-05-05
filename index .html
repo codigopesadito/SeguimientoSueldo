@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Mi Sueldo">
+<meta name="theme-color" content="#ffffff">
+<title>Control de Sueldo — Garzón</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#fff;--bg2:#f5f5f5;--bg3:#ebebeb;
+  --text:#111;--text2:#666;--text3:#999;
+  --border:#e0e0e0;--border2:#ccc;
+  --green:#1a7a4a;--green-bg:#e8f5ef;
+  --red:#c0392b;--red-bg:#fdecea;
+  --yellow:#b45309;--yellow-bg:#fef3cd;
+  --blue:#1a56a0;--blue-bg:#e8f0fb;
+  --r:12px;--rs:8px;
+}
+@media(prefers-color-scheme:dark){:root{
+  --bg:#1a1a1a;--bg2:#242424;--bg3:#2e2e2e;
+  --text:#f0f0f0;--text2:#aaa;--text3:#777;
+  --border:#333;--border2:#444;
+  --green:#2ecc71;--green-bg:#0d2e1c;
+  --red:#e74c3c;--red-bg:#2d0f0d;
+  --yellow:#f59e0b;--yellow-bg:#2d1f00;
+  --blue:#5b9af0;--blue-bg:#0d1e35;
+}}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);padding-bottom:40px}
+.topbar{background:var(--bg);border-bottom:1px solid var(--border);padding:14px 16px 0;position:sticky;top:0;z-index:50}
+.topbar h1{font-size:18px;font-weight:600;margin-bottom:10px}
+.tabs{display:flex}
+.tab{flex:1;padding:10px 0;border:none;background:none;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;color:var(--text2);cursor:pointer;border-bottom:2px solid transparent}
+.tab.active{color:var(--text);border-bottom-color:var(--text)}
+.content{padding:16px}
+.section{display:none}.section.active{display:block}
+.dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px}
+.dc{border-radius:var(--r);padding:14px;border:1px solid transparent}
+.dc.red{background:var(--red-bg);border-color:var(--red)}
+.dc.green{background:var(--green-bg);border-color:var(--green)}
+.dc.blue{background:var(--blue-bg);border-color:var(--blue)}
+.dc.yellow{background:var(--yellow-bg);border-color:var(--yellow)}
+.dc-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px}
+.dc.red .dc-label{color:var(--red)}.dc.green .dc-label{color:var(--green)}
+.dc.blue .dc-label{color:var(--blue)}.dc.yellow .dc-label{color:var(--yellow)}
+.dc-val{font-size:20px;font-weight:600;font-family:'DM Mono',monospace;line-height:1.1}
+.dc.red .dc-val{color:var(--red)}.dc.green .dc-val{color:var(--green)}
+.dc.blue .dc-val{color:var(--blue)}.dc.yellow .dc-val{color:var(--yellow)}
+.dc-sub{font-size:11px;margin-top:3px;color:var(--text2)}
+.alerta{background:var(--red-bg);border:1px solid var(--red);border-radius:var(--rs);padding:10px 13px;margin-bottom:16px;font-size:13px;color:var(--red);font-weight:500;display:none;line-height:1.5}
+.nota-box{background:var(--yellow-bg);border:1px solid #f59e0b55;border-radius:var(--r);padding:12px 14px;margin-bottom:18px}
+.nota-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--yellow);margin-bottom:6px}
+.nota-box textarea{width:100%;background:transparent;border:none;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text);resize:none;outline:none;line-height:1.5}
+.cfg{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--bg2);border-radius:var(--rs);padding:10px 12px;margin-bottom:16px;border:1px solid var(--border)}
+.cfg span{font-size:13px}.cfg input{width:130px;padding:7px 10px;border:1px solid var(--border2);border-radius:var(--rs);font-size:14px;font-family:'DM Mono',monospace;background:var(--bg);color:var(--text)}
+.cfg button{padding:7px 13px;border:1px solid var(--border2);border-radius:var(--rs);font-size:13px;font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);cursor:pointer}
+.sueldo-val{font-family:'DM Mono',monospace;font-weight:600;color:var(--blue)}
+.fcard{background:var(--bg2);border-radius:var(--r);padding:14px;margin-bottom:18px;border:1px solid var(--border)}
+.ftitle{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--text2);margin-bottom:12px}
+.field{margin-bottom:10px}
+.field label{font-size:12px;color:var(--text2);display:block;margin-bottom:4px}
+.field input,.field select,.field textarea{width:100%;padding:10px 12px;border:1px solid var(--border2);border-radius:var(--rs);font-family:'DM Sans',sans-serif;font-size:15px;background:var(--bg);color:var(--text);-webkit-appearance:none;outline:none}
+.field input:focus,.field select:focus{border-color:var(--blue)}
+.field textarea{resize:none;min-height:44px;font-size:13px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.hint{font-size:11px;color:var(--text3);margin-top:3px}
+.hint.green{color:var(--green);font-weight:500}
+.btn-main{width:100%;padding:13px;background:var(--text);color:var(--bg);border:none;border-radius:var(--rs);font-size:15px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;margin-top:4px}
+.btn-main:active{opacity:.8}
+.mes-list{display:flex;flex-direction:column;gap:10px;margin-bottom:18px}
+.mc{border-radius:var(--r);border:1px solid var(--border);background:var(--bg);overflow:hidden}
+.mc.cg{border-color:var(--green)}.mc.cr{border-color:var(--red)}.mc.cy{border-color:var(--yellow)}
+.mc-head{display:flex;align-items:center;justify-content:space-between;padding:13px 14px;cursor:pointer;gap:8px}
+.mc-head:active{background:var(--bg2)}
+.mc-left{display:flex;align-items:center;gap:8px;min-width:0;flex:1}
+.dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.dot.g{background:var(--green)}.dot.r{background:var(--red)}.dot.y{background:var(--yellow)}
+.mc-name{font-size:15px;font-weight:600;white-space:nowrap}
+.pill{padding:2px 9px;border-radius:99px;font-size:10px;font-weight:700}
+.pill.g{background:var(--green-bg);color:var(--green)}
+.pill.r{background:var(--red-bg);color:var(--red)}
+.pill.y{background:var(--yellow-bg);color:var(--yellow)}
+.mc-right{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.mc-amount{font-family:'DM Mono',monospace;font-size:13px;font-weight:500}
+.mc-amount.r{color:var(--red)}.mc-amount.g{color:var(--green)}
+.chev{font-size:10px;color:var(--text3);transition:transform .2s;display:inline-block}
+.chev.open{transform:rotate(90deg)}
+.mc-body{display:none;padding:13px 14px;border-top:1px solid var(--border);background:var(--bg2)}
+.mc-body.open{display:block}
+.sueldo-mes-badge{display:inline-flex;align-items:center;gap:5px;background:var(--blue-bg);border:1px solid var(--blue);border-radius:6px;padding:3px 9px;font-size:11px;font-weight:600;color:var(--blue);margin-bottom:10px}
+.prog-bar{background:var(--border);border-radius:99px;height:7px;overflow:hidden;margin:5px 0}
+.prog-fill{height:100%;border-radius:99px}
+.pf-g{background:var(--green)}.pf-r{background:var(--red)}.pf-y{background:var(--yellow)}
+.prog-labels{display:flex;justify-content:space-between;font-size:11px;color:var(--text2);margin-bottom:12px}
+.subtit{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text3);margin-bottom:8px}
+.dep-row{padding:8px 0;border-bottom:1px solid var(--border)}
+.dep-row:last-child{border-bottom:none}
+.dep-top{display:flex;justify-content:space-between;align-items:flex-start}
+.dep-date{font-size:13px;font-weight:500}
+.dep-total{font-family:'DM Mono',monospace;font-size:13px}
+.dep-detail{font-size:11px;color:var(--text2);margin-top:2px}
+.dep-applied{color:var(--green);font-weight:600}
+.dep-nota{font-style:italic;color:var(--text2);font-size:12px;margin-top:2px}
+.dep-acts{display:flex;gap:6px;margin-top:6px}
+.bxs{padding:4px 10px;border-radius:6px;font-size:12px;font-weight:500;font-family:'DM Sans',sans-serif;cursor:pointer;border:1px solid var(--border2);background:var(--bg);color:var(--text)}
+.bxs.danger{color:var(--red);border-color:var(--red)}
+.mc-lim{font-size:11px;color:var(--text3);margin-top:8px}
+.psec{background:var(--bg);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:18px}
+.psec-head{padding:12px 14px;background:var(--bg2);border-bottom:1px solid var(--border)}
+.psec-head h3{font-size:13px;font-weight:600}
+.psec-head p{font-size:11px;color:var(--text2);margin-top:2px}
+.pitem{display:flex;justify-content:space-between;align-items:flex-start;padding:11px 14px;border-bottom:1px solid var(--border)}
+.pitem:last-child{border-bottom:none}
+.pitem-l{flex:1;padding-right:8px}
+.pitem-date{font-size:12px;color:var(--text2)}
+.pitem-desc{font-size:13px;margin-top:1px}
+.pitem-sub{font-size:11px;color:var(--text3);margin-top:1px}
+.pitem-r{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.pamt{font-family:'DM Mono',monospace;font-size:14px;font-weight:500}
+.pamt.g{color:var(--green)}.pamt.b{color:var(--blue)}
+.bdel{background:none;border:none;color:var(--text3);font-size:16px;cursor:pointer;padding:2px 4px}
+.prop-preview{font-size:13px;color:var(--green);font-weight:600;margin:-4px 0 10px;min-height:18px}
+.empty-msg{text-align:center;padding:20px 14px;font-size:13px;color:var(--text3)}
+.mbg{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:flex-end;justify-content:center;z-index:100}
+.mbg.open{display:flex}
+.modal{background:var(--bg);border-radius:20px 20px 0 0;padding:20px 16px 36px;width:100%;max-height:85vh;overflow-y:auto}
+.modal h3{font-size:16px;font-weight:600;margin-bottom:16px}
+.modal .field{margin-bottom:12px}
+.mbtns{display:flex;gap:10px;margin-top:16px}
+.mbtns button{flex:1;padding:12px;border-radius:var(--rs);font-size:15px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;border:1px solid var(--border2)}
+.bcancel{background:var(--bg2);color:var(--text)}
+.bsave{background:var(--text);color:var(--bg);border-color:var(--text)}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <h1>📋 Control de Sueldo</h1>
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('sueldo')">Sueldo Base</button>
+    <button class="tab" onclick="showTab('propinas')">Propinas</button>
+  </div>
+</div>
+<div class="content">
+
+<!-- SUELDO -->
+<div id="tab-sueldo" class="section active">
+  <div class="cfg">
+    <span>Sueldo mínimo base: <span class="sueldo-val" id="lbl-base">$640.000</span></span>
+    <input type="number" id="cfg-base" placeholder="Cambiar base..." inputmode="numeric"/>
+    <button onclick="setBase()">Guardar</button>
+  </div>
+  <div class="nota-box">
+    <div class="nota-label">📌 Nota / Acuerdo</div>
+    <textarea id="nota-text" rows="2" placeholder="Ej: Jefe debe pagar antes del día 5. Gratificación siempre incluida en liquidación..." onblur="saveNota()"></textarea>
+  </div>
+  <div id="alerta-sueldo" class="alerta"></div>
+  <div class="dash-grid" id="dash-sueldo"></div>
+  <div class="mes-list" id="mes-list"></div>
+  <div class="fcard">
+    <div class="ftitle">Registrar depósito recibido</div>
+    <div class="row2">
+      <div class="field">
+        <label>Mes</label>
+        <select id="s-mes">
+          <option>Enero</option><option>Febrero</option><option>Marzo</option>
+          <option>Abril</option><option>Mayo</option><option>Junio</option>
+          <option>Julio</option><option>Agosto</option><option>Septiembre</option>
+          <option>Octubre</option><option>Noviembre</option><option>Diciembre</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Sueldo de este mes ($)</label>
+        <input type="number" id="s-sueldo-mes" placeholder="Vacío = usar base" inputmode="numeric" oninput="previewSueldo()"/>
+        <div class="hint" id="hint-sueldo">Usará sueldo base por defecto</div>
+      </div>
+    </div>
+    <div class="row2">
+      <div class="field">
+        <label>Monto depósito ($)</label>
+        <input type="number" id="s-monto" placeholder="500000" inputmode="numeric"/>
+      </div>
+      <div class="field">
+        <label>Fecha depósito</label>
+        <input type="date" id="s-fecha"/>
+      </div>
+    </div>
+    <div class="field">
+      <label>Nota (opcional)</label>
+      <textarea id="s-nota" placeholder="Ej: Pago parcial, falta completar..."></textarea>
+    </div>
+    <button class="btn-main" onclick="addDeposito()">+ Agregar depósito</button>
+  </div>
+</div>
+
+<!-- PROPINAS -->
+<div id="tab-propinas" class="section">
+  <div id="alerta-prop" class="alerta"></div>
+  <div class="dash-grid" id="dash-prop"></div>
+  <div class="fcard">
+    <div class="ftitle">Registrar mesa atendida</div>
+    <div class="row2">
+      <div class="field">
+        <label>Cuenta total ($)</label>
+        <input type="number" id="p-cuenta" placeholder="60000" inputmode="numeric" oninput="calcProp()"/>
+      </div>
+      <div class="field">
+        <label>% propina</label>
+        <input type="number" id="p-pct" value="10" min="1" max="100" inputmode="numeric" oninput="calcProp()"/>
+      </div>
+    </div>
+    <div class="prop-preview" id="prop-preview"></div>
+    <div class="row2">
+      <div class="field">
+        <label>Fecha</label>
+        <input type="date" id="p-fecha"/>
+      </div>
+      <div class="field">
+        <label>Descripción</label>
+        <input type="text" id="p-desc" placeholder="Ej: Mesa 4, grupo 6"/>
+      </div>
+    </div>
+    <button class="btn-main" onclick="addMesa()">+ Registrar mesa</button>
+  </div>
+  <div class="psec">
+    <div class="psec-head"><h3>Mesas registradas — propinas generadas</h3><p>Lo que el jefe te debe por pagos con tarjeta</p></div>
+    <div id="lista-mesas"><div class="empty-msg">Sin mesas registradas aún</div></div>
+  </div>
+  <div class="fcard">
+    <div class="ftitle">Registrar depósito de propinas del jefe</div>
+    <div class="row2">
+      <div class="field">
+        <label>Monto ($)</label>
+        <input type="number" id="pd-monto" placeholder="80000" inputmode="numeric"/>
+      </div>
+      <div class="field">
+        <label>Fecha</label>
+        <input type="date" id="pd-fecha"/>
+      </div>
+    </div>
+    <div class="field">
+      <label>Nota (opcional)</label>
+      <input type="text" id="pd-nota" placeholder="Ej: Propinas semana del 15 al 21..."/>
+    </div>
+    <button class="btn-main" onclick="addDepPropina()">+ Registrar depósito propinas</button>
+  </div>
+  <div class="psec">
+    <div class="psec-head"><h3>Depósitos de propinas recibidos</h3><p>Se descuentan del total adeudado</p></div>
+    <div id="lista-dep-prop"><div class="empty-msg">Sin depósitos registrados</div></div>
+  </div>
+</div>
+</div>
+
+<!-- MODAL -->
+<div class="mbg" id="mbg">
+  <div class="modal">
+    <h3>Editar depósito</h3>
+    <input type="hidden" id="edit-id"/>
+    <div class="field"><label>Mes</label>
+      <select id="edit-mes">
+        <option>Enero</option><option>Febrero</option><option>Marzo</option>
+        <option>Abril</option><option>Mayo</option><option>Junio</option>
+        <option>Julio</option><option>Agosto</option><option>Septiembre</option>
+        <option>Octubre</option><option>Noviembre</option><option>Diciembre</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Sueldo acordado de ese mes ($)</label>
+      <input type="number" id="edit-sueldo-mes" placeholder="Dejar vacío = usar base" inputmode="numeric"/>
+      <div class="hint" id="edit-hint-sueldo"></div>
+    </div>
+    <div class="field"><label>Monto ($)</label><input type="number" id="edit-monto" inputmode="numeric"/></div>
+    <div class="field"><label>Fecha</label><input type="date" id="edit-fecha"/></div>
+    <div class="field"><label>Nota</label><textarea id="edit-nota" rows="2"></textarea></div>
+    <div class="mbtns">
+      <button class="bcancel" onclick="closeModal()">Cancelar</button>
+      <button class="bsave" onclick="saveEdit()">Guardar cambios</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const MESES=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+const ld=k=>{try{return JSON.parse(localStorage.getItem(k))||null}catch{return null}};
+const sv=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch{}};
+const fmtM=n=>'$'+Math.round(n).toLocaleString('es-CL');
+const fmtD=s=>new Date(s+'T12:00:00').toLocaleDateString('es-CL',{day:'2-digit',month:'short',year:'numeric'});
+
+let sueldoBase=ld('gz4_base')||640000;
+let depositos=ld('gz4_dep')||[];
+let mesas=ld('gz4_mesas')||[];
+let depProp=ld('gz4_depprop')||[];
+
+function sueldoDelMes(mes){
+  const dep=depositos.find(d=>d.mes===mes&&d.sueldoMes&&d.sueldoMes>0);
+  return dep?dep.sueldoMes:sueldoBase;
+}
+function showTab(t){
+  document.querySelectorAll('.tab').forEach((b,i)=>b.classList.toggle('active',['sueldo','propinas'][i]===t));
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.getElementById('tab-'+t).classList.add('active');
+}
+function setBase(){
+  const v=parseInt(document.getElementById('cfg-base').value);
+  if(!v||v<1){alert('Ingresa un monto válido');return;}
+  sueldoBase=v;sv('gz4_base',v);
+  document.getElementById('cfg-base').value='';
+  renderSueldo();
+}
+function saveNota(){sv('gz4_nota',document.getElementById('nota-text').value)}
+function previewSueldo(){
+  const v=parseInt(document.getElementById('s-sueldo-mes').value);
+  const hint=document.getElementById('hint-sueldo');
+  if(v&&v>0){hint.textContent='Sueldo de este mes: '+fmtM(v);hint.className='hint green';}
+  else{hint.textContent='Usará sueldo base ('+fmtM(sueldoBase)+') por defecto';hint.className='hint';}
+}
+function calcEstados(){
+  const deps=[...depositos].sort((a,b)=>new Date(a.fecha)-new Date(b.fecha));
+  const mSet=new Set(depositos.map(d=>d.mes));
+  const mOrd=[...mSet].sort((a,b)=>MESES.indexOf(a)-MESES.indexOf(b));
+  const sueldos={};
+  mOrd.forEach(m=>sueldos[m]=sueldoDelMes(m));
+  const cola=mOrd.map(m=>({mes:m,restante:sueldos[m]}));
+  const info={};
+  mOrd.forEach(m=>info[m]={mes:m,sueldo:sueldos[m],restante:sueldos[m],pagado:0,deps:[]});
+  deps.forEach(dep=>{
+    let resto=dep.monto;
+    for(let i=0;i<cola.length;i++){
+      if(cola[i].restante<=0)continue;
+      const ap=Math.min(resto,cola[i].restante);
+      cola[i].restante-=ap;resto-=ap;
+      info[cola[i].mes].deps.push({...dep,aplicado:ap});
+      if(resto<=0)break;
+    }
+  });
+  cola.forEach(c=>{if(info[c.mes]){info[c.mes].restante=Math.max(0,c.restante);info[c.mes].pagado=sueldos[c.mes]-c.restante;}});
+  const anio=new Date().getFullYear();
+  return mOrd.map(m=>{
+    const e=info[m];
+    const idx=MESES.indexOf(m);
+    const lim=new Date(idx===11?anio+1:anio,idx===11?0:idx+1,5);
+    const hoy=new Date();
+    const atraso=e.restante>0&&hoy>lim?Math.round((hoy-lim)/86400000):0;
+    return{...e,cerrado:e.restante<=0,atraso,limite:lim};
+  });
+}
+function renderSueldo(){
+  document.getElementById('lbl-base').textContent=fmtM(sueldoBase);
+  document.getElementById('nota-text').value=ld('gz4_nota')||'';
+  previewSueldo();
+  const est=calcEstados();
+  const totalDebe=est.reduce((a,e)=>a+e.restante,0);
+  const cerrados=est.filter(e=>e.cerrado).length;
+  const atrasados=est.filter(e=>e.atraso>0).length;
+  const totalRecib=depositos.reduce((a,d)=>a+d.monto,0);
+  const al=document.getElementById('alerta-sueldo');
+  if(totalDebe>0&&est.length){
+    al.style.display='block';
+    al.textContent='⚠ Deuda total: '+fmtM(totalDebe)+' — '+est.filter(e=>!e.cerrado).map(e=>e.mes+': '+fmtM(e.restante)).join(' · ');
+  }else al.style.display='none';
+  document.getElementById('dash-sueldo').innerHTML=`
+    <div class="dc ${totalDebe>0?'red':'green'}">
+      <div class="dc-label">${totalDebe>0?'Te deben':'Sin deuda'}</div>
+      <div class="dc-val">${fmtM(totalDebe)}</div>
+      <div class="dc-sub">${atrasados>0?atrasados+' mes(es) atrasado(s)':'Sin atrasos'}</div>
+    </div>
+    <div class="dc green">
+      <div class="dc-label">Meses cerrados</div>
+      <div class="dc-val">${cerrados}</div>
+      <div class="dc-sub">de ${est.length} registrados</div>
+    </div>
+    <div class="dc blue">
+      <div class="dc-label">Total recibido</div>
+      <div class="dc-val">${fmtM(totalRecib)}</div>
+      <div class="dc-sub">${depositos.length} depósitos</div>
+    </div>
+    <div class="dc yellow">
+      <div class="dc-label">Con atraso</div>
+      <div class="dc-val">${atrasados}</div>
+      <div class="dc-sub">${atrasados>0?'Pasaron el día 5':'Todo bien'}</div>
+    </div>`;
+  const ml=document.getElementById('mes-list');
+  if(!est.length){ml.innerHTML='<div style="text-align:center;padding:24px;color:var(--text3);font-size:14px">Agrega el primer depósito abajo</div>';return;}
+  ml.innerHTML=est.map((e,i)=>{
+    const pct=Math.min(100,Math.round(e.pagado/e.sueldo*100));
+    const cl=e.cerrado?'cg':e.atraso>0?'cr':'cy';
+    const dc=e.cerrado?'g':e.atraso>0?'r':'y';
+    const pillTxt=e.cerrado?'✓ Saldado':e.atraso>0?'⚠ '+e.atraso+'d atraso':'Pendiente';
+    const montoTxt=e.cerrado?`<span class="mc-amount g">Pagado completo</span>`:`<span class="mc-amount r">Debe ${fmtM(e.restante)}</span>`;
+    const esFijo=e.sueldo===sueldoBase;
+    const sueldoBadge=`<span class="sueldo-mes-badge">${esFijo?'Base':'Liquidación'}: ${fmtM(e.sueldo)}</span>`;
+    const depsHtml=e.deps.length?e.deps.map(d=>`
+      <div class="dep-row">
+        <div class="dep-top"><span class="dep-date">${fmtD(d.fecha)}</span><span class="dep-total">${fmtM(d.monto)}</span></div>
+        <div class="dep-detail">Aplicado aquí: <span class="dep-applied">${fmtM(d.aplicado)}</span></div>
+        ${d.nota?`<div class="dep-nota">"${d.nota}"</div>`:''}
+        <div class="dep-acts">
+          <button class="bxs" onclick="openEdit('${d.id}')">✏ Editar</button>
+          <button class="bxs danger" onclick="delDep('${d.id}')">✕ Eliminar</button>
+        </div>
+      </div>`).join(''):'<div style="font-size:12px;color:var(--text3);padding:6px 0">Sin depósitos aplicados aún</div>';
+    return`<div class="mc ${cl}">
+      <div class="mc-head" onclick="toggle(${i})">
+        <div class="mc-left"><span class="dot ${dc}"></span><span class="mc-name">${e.mes}</span><span class="pill ${dc}">${pillTxt}</span></div>
+        <div class="mc-right">${montoTxt}<span class="chev" id="chev-${i}">▶</span></div>
+      </div>
+      <div class="mc-body" id="body-${i}">
+        ${sueldoBadge}
+        <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text2);margin-bottom:4px">
+          <span>Progreso de pago</span><span>${pct}%</span>
+        </div>
+        <div class="prog-bar"><div class="prog-fill pf-${dc}" style="width:${pct}%"></div></div>
+        <div class="prog-labels"><span>Pagado ${fmtM(e.pagado)}</span><span>Total ${fmtM(e.sueldo)}</span></div>
+        <div class="subtit">Depósitos aplicados</div>
+        ${depsHtml}
+        <div class="mc-lim">Límite de pago: ${fmtD(e.limite.toISOString().split('T')[0])}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+function toggle(i){
+  document.getElementById('body-'+i).classList.toggle('open');
+  document.getElementById('chev-'+i).classList.toggle('open');
+}
+function addDeposito(){
+  const mes=document.getElementById('s-mes').value;
+  const sueldoMes=parseInt(document.getElementById('s-sueldo-mes').value)||0;
+  const monto=parseInt(document.getElementById('s-monto').value);
+  const fecha=document.getElementById('s-fecha').value;
+  const nota=document.getElementById('s-nota').value.trim();
+  if(!monto||!fecha){alert('Completa monto y fecha');return;}
+  depositos.push({id:String(Date.now()),mes,sueldoMes,monto,fecha,nota});
+  sv('gz4_dep',depositos);
+  document.getElementById('s-monto').value='';
+  document.getElementById('s-sueldo-mes').value='';
+  document.getElementById('s-nota').value='';
+  previewSueldo();
+  renderSueldo();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function delDep(id){if(!confirm('¿Eliminar este depósito?'))return;depositos=depositos.filter(d=>d.id!==id);sv('gz4_dep',depositos);renderSueldo();}
+function openEdit(id){
+  const d=depositos.find(d=>d.id===id);if(!d)return;
+  document.getElementById('edit-id').value=id;
+  document.getElementById('edit-mes').value=d.mes;
+  document.getElementById('edit-sueldo-mes').value=d.sueldoMes||'';
+  document.getElementById('edit-monto').value=d.monto;
+  document.getElementById('edit-fecha').value=d.fecha;
+  document.getElementById('edit-nota').value=d.nota||'';
+  document.getElementById('edit-hint-sueldo').textContent=d.sueldoMes?'Sueldo de este mes: '+fmtM(d.sueldoMes):'Usando sueldo base ('+fmtM(sueldoBase)+')';
+  document.getElementById('mbg').classList.add('open');
+}
+function closeModal(){document.getElementById('mbg').classList.remove('open')}
+function saveEdit(){
+  const id=document.getElementById('edit-id').value;
+  const idx=depositos.findIndex(d=>d.id===id);if(idx<0)return;
+  depositos[idx].mes=document.getElementById('edit-mes').value;
+  depositos[idx].sueldoMes=parseInt(document.getElementById('edit-sueldo-mes').value)||0;
+  depositos[idx].monto=parseInt(document.getElementById('edit-monto').value)||depositos[idx].monto;
+  depositos[idx].fecha=document.getElementById('edit-fecha').value;
+  depositos[idx].nota=document.getElementById('edit-nota').value.trim();
+  sv('gz4_dep',depositos);closeModal();renderSueldo();
+}
+function calcProp(){
+  const c=parseFloat(document.getElementById('p-cuenta').value)||0;
+  const pct=parseFloat(document.getElementById('p-pct').value)||10;
+  const p=Math.round(c*pct/100);
+  document.getElementById('prop-preview').textContent=p>0?'Propina: '+fmtM(p):'';
+}
+function addMesa(){
+  const cuenta=parseInt(document.getElementById('p-cuenta').value);
+  const pct=parseFloat(document.getElementById('p-pct').value)||10;
+  const fecha=document.getElementById('p-fecha').value;
+  const desc=document.getElementById('p-desc').value.trim();
+  if(!cuenta||!fecha){alert('Ingresa la cuenta y fecha');return;}
+  mesas.push({id:String(Date.now()),cuenta,pct,prop:Math.round(cuenta*pct/100),fecha,desc});
+  sv('gz4_mesas',mesas);
+  document.getElementById('p-cuenta').value='';
+  document.getElementById('p-desc').value='';
+  document.getElementById('prop-preview').textContent='';
+  renderPropinas();
+}
+function addDepPropina(){
+  const monto=parseInt(document.getElementById('pd-monto').value);
+  const fecha=document.getElementById('pd-fecha').value;
+  const nota=document.getElementById('pd-nota').value.trim();
+  if(!monto||!fecha){alert('Ingresa monto y fecha');return;}
+  depProp.push({id:String(Date.now()),monto,fecha,nota});
+  sv('gz4_depprop',depProp);
+  document.getElementById('pd-monto').value='';
+  document.getElementById('pd-nota').value='';
+  renderPropinas();
+}
+function delMesa(id){if(!confirm('¿Eliminar?'))return;mesas=mesas.filter(m=>m.id!==id);sv('gz4_mesas',mesas);renderPropinas();}
+function delDepProp(id){if(!confirm('¿Eliminar?'))return;depProp=depProp.filter(d=>d.id!==id);sv('gz4_depprop',depProp);renderPropinas();}
+function renderPropinas(){
+  const totalGen=mesas.reduce((a,m)=>a+m.prop,0);
+  const totalRec=depProp.reduce((a,d)=>a+d.monto,0);
+  const saldo=Math.max(0,totalGen-totalRec);
+  const al=document.getElementById('alerta-prop');
+  if(saldo>0){al.style.display='block';al.textContent='⚠ El jefe te debe '+fmtM(saldo)+' en propinas';}
+  else al.style.display='none';
+  document.getElementById('dash-prop').innerHTML=`
+    <div class="dc ${saldo>0?'red':'green'}">
+      <div class="dc-label">Propinas pendientes</div>
+      <div class="dc-val">${fmtM(saldo)}</div>
+      <div class="dc-sub">${saldo>0?'Por depositar':'Al día'}</div>
+    </div>
+    <div class="dc blue">
+      <div class="dc-label">Total generado</div>
+      <div class="dc-val">${fmtM(totalGen)}</div>
+      <div class="dc-sub">${mesas.length} mesas</div>
+    </div>
+    <div class="dc green">
+      <div class="dc-label">Total recibido</div>
+      <div class="dc-val">${fmtM(totalRec)}</div>
+      <div class="dc-sub">${depProp.length} depósitos</div>
+    </div>
+    <div class="dc yellow">
+      <div class="dc-label">Mesas hoy</div>
+      <div class="dc-val">${mesas.filter(m=>m.fecha===new Date().toISOString().split('T')[0]).length}</div>
+      <div class="dc-sub">registradas hoy</div>
+    </div>`;
+  const lm=document.getElementById('lista-mesas');
+  lm.innerHTML=[...mesas].sort((a,b)=>new Date(b.fecha)-new Date(a.fecha)).map(m=>`
+    <div class="pitem">
+      <div class="pitem-l">
+        <div class="pitem-date">${fmtD(m.fecha)}</div>
+        <div class="pitem-desc">${m.desc||'Mesa sin descripción'}</div>
+        <div class="pitem-sub">Cuenta: ${fmtM(m.cuenta)} · ${m.pct}%</div>
+      </div>
+      <div class="pitem-r"><span class="pamt g">${fmtM(m.prop)}</span><button class="bdel" onclick="delMesa('${m.id}')">✕</button></div>
+    </div>`).join('')||'<div class="empty-msg">Sin mesas registradas aún</div>';
+  const ldp=document.getElementById('lista-dep-prop');
+  ldp.innerHTML=[...depProp].sort((a,b)=>new Date(b.fecha)-new Date(a.fecha)).map(d=>`
+    <div class="pitem">
+      <div class="pitem-l">
+        <div class="pitem-date">${fmtD(d.fecha)}</div>
+        <div class="pitem-desc">${d.nota||'Depósito del jefe'}</div>
+      </div>
+      <div class="pitem-r"><span class="pamt b">${fmtM(d.monto)}</span><button class="bdel" onclick="delDepProp('${d.id}')">✕</button></div>
+    </div>`).join('')||'<div class="empty-msg">Sin depósitos registrados</div>';
+}
+const hoy=new Date().toISOString().split('T')[0];
+['s-fecha','p-fecha','pd-fecha'].forEach(id=>document.getElementById(id).value=hoy);
+document.getElementById('s-mes').value=MESES[new Date().getMonth()];
+document.getElementById('mbg').addEventListener('click',function(e){if(e.target===this)closeModal()});
+renderSueldo();renderPropinas();
+</script>
+</body>
+</html>
